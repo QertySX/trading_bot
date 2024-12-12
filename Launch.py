@@ -44,21 +44,51 @@ async def connect():
             print(auth_response)
 
             if auth_response["code"] != 0:
-                print(f"Authentication error code: {auth_response['code']}")
+                print(f"Ошибка аутентификации: {auth_response['code']}")
                 return
 
             # Subscribe to the orders channel
-            orders_request = {
+            #orders_request = {
+              #  "op": "subscribe",
+              #  "args": [{
+              #      "channel": "orders",
+              #      "instType": "UMCBL",
+               #     "instId": "default"
+               # }]
+          #  }
+          #  await websocket.send(json.dumps(orders_request))
+         #   order_response = json.loads(await websocket.recv())
+         #   print(order_response)
+
+             #Подписка на демо трейдинг
+            demo_trading = {
                 "op": "subscribe",
                 "args": [{
-                    "channel": "orders",
-                    "instType": "UMCBL",
-                    "instId": "default"
+                    "instType": "SUSDT-FUTURES",
+                    "channel": "ticker",
+                    "instId": "SBTCSUSDT"
                 }]
             }
-            await websocket.send(json.dumps(orders_request))
-            order_response = json.loads(await websocket.recv())
-            print(order_response)
+
+            await websocket.send(json.dumps(demo_trading))
+            demo_trading_response = json.loads(await websocket.recv())
+            print(demo_trading_response)
+
+            if demo_trading_response.get("code") != 0:
+                print(f"Подписка не прошла: {demo_trading_response}")
+                return
+            else:
+                print("Подписка на демо трейдинг успешна")
+
+            while True:
+                try:
+                    message = await websocket.recv()
+                    print(f"Received data: {message}")  # Логика обработки данных от WebSocket
+                except Exception as e:
+                    print(f"Error receiving data: {e}")
+                    break
+
+
 
             # Set up ping interval
             timer = asyncio.get_event_loop().call_later(30, send_ping, websocket)
