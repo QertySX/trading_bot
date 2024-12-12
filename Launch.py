@@ -25,15 +25,9 @@ async def connect():
     try:
         async with websockets.connect(uri) as websocket:
             timestamp = str(int(time.time()))
-            method = "GET"
-            endpoint = "/user/verify"
-            # Формируем строку
-            content = f"{timestamp}{method}{endpoint}"
-            # Генерируем подпись
-            hash = hmac.new(secretKey.encode('utf-8'), content.encode('utf-8'), hashlib.sha256).digest()
+            content = timestamp + 'GET' + '/user/verify'
+            hash = hmac.new(bytes(secretKey, 'utf-8'), bytes(content, 'utf-8'), hashlib.sha256).digest()
             signature = base64.b64encode(hash).decode('utf-8')
-            print("Подпись:", signature)
-
             auth_request = {
                 "op": "login",
                 "args": [
