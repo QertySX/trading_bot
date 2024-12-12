@@ -10,9 +10,9 @@ PING_MESSAGE = 'ping'
 PONG_MESSAGE = 'pong'
 
 # Replace these with your Bitget API key and secret
-apiKey = 'bg_660c4bcf9e0a9483ce711e0dbbf4c595'
-passphrase = 'QWERTYasdfg808801'
-secretKey = '6bc9b6713cb3c34f93b88aeac43998d665979ea2c301c4b5e51821b7a79ce511'
+apiKey = 'bg_047b6659de65d5bbde4fe51ea0634114'
+passphrase = 'qwerty808801'
+secretKey = '7268916a299b69342d6d1f06752303abd15289a78a33096a350294fbf878b26d'
 
 
 def send_ping(websocket):
@@ -21,13 +21,19 @@ def send_ping(websocket):
 
 
 async def connect():
-    uri = "wss://ws.bitget.com/mix/v1/stream"
+    uri = "wss://ws.bitget.com/v2/ws/private"
     try:
         async with websockets.connect(uri) as websocket:
             timestamp = str(int(time.time()))
-            content = timestamp + 'GET' + '/user/verify'
-            hash = hmac.new(bytes(secretKey, 'utf-8'), bytes(content, 'utf-8'), hashlib.sha256).digest()
+            method = "GET"
+            endpoint = "/user/verify"
+            # Формируем строку
+            content = f"{timestamp}{method}{endpoint}"
+            # Генерируем подпись
+            hash = hmac.new(secretKey.encode('utf-8'), content.encode('utf-8'), hashlib.sha256).digest()
             signature = base64.b64encode(hash).decode('utf-8')
+            print("Подпись:", signature)
+
             auth_request = {
                 "op": "login",
                 "args": [
